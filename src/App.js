@@ -20,6 +20,8 @@ function App() {
   const [searchResults, setSearchResults] = useState([]);
   const [postTitle, setPostTitle] = useState("");
   const [postBody, setPostBody] = useState("");
+  const [editTitle, setEditTitle] = useState("");
+  const [editBody, setEditBody] = useState("");
 
   const navigate = useNavigate(); //React Router v6 introduced a paradigm shift with the useNavigate hook, offering a more concise and streamlined approach to manage navigation within components. Unlike useHistory, useNavigate simplifies the navigation process by providing a single function for triggering route changes.
 
@@ -87,6 +89,34 @@ function App() {
       }
     }
   };
+
+  const handleEdit =  async(id)=>{
+    //we need to have new state for edit body and title
+    const datetime = format(new Date(), "MMMM dd, yyyy pp");
+
+    const updatedBody = {id, title: editTitle, datetime, body: editBody};
+
+    try{
+        const response = await api.put(`/posts/${id}`, updatedBody);
+
+        setPosts(posts.map(post=> post.id === id ? {...response.data} : post ))
+        setEditTitle('');
+        setEditBody('');
+        navigate("/");
+    }
+    catch (err) {
+      if (err.response) {
+        //not in 200 Response range
+        console.log(err.response.data);
+        console.log(err.response.status);
+        console.log(err.response.headers);
+      } else {
+        console.log(`Error :${err.message}`);
+      }
+    }
+
+  
+  }
 
   const handleDelete = async (id) => {
     try {
