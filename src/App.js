@@ -12,6 +12,7 @@ import Missing from "./Missing";
 import Footer from "./Footer";
 import { format } from "date-fns";
 import api from "./api/posts";
+import EditPost from "./EditPost";
 
 function App() {
   const [posts, setPosts] = useState([]);
@@ -90,21 +91,22 @@ function App() {
     }
   };
 
-  const handleEdit =  async(id)=>{
+  const handleEdit = async (id) => {
     //we need to have new state for edit body and title
     const datetime = format(new Date(), "MMMM dd, yyyy pp");
 
-    const updatedBody = {id, title: editTitle, datetime, body: editBody};
+    const updatedBody = { id, title: editTitle, datetime, body: editBody };
 
-    try{
-        const response = await api.put(`/posts/${id}`, updatedBody);
+    try {
+      const response = await api.put(`/posts/${id}`, updatedBody);
 
-        setPosts(posts.map(post=> post.id === id ? {...response.data} : post ))
-        setEditTitle('');
-        setEditBody('');
-        navigate("/");
-    }
-    catch (err) {
+      setPosts(
+        posts.map((post) => (post.id === id ? { ...response.data } : post))
+      );
+      setEditTitle("");
+      setEditBody("");
+      navigate("/");
+    } catch (err) {
       if (err.response) {
         //not in 200 Response range
         console.log(err.response.data);
@@ -114,9 +116,7 @@ function App() {
         console.log(`Error :${err.message}`);
       }
     }
-
-  
-  }
+  };
 
   const handleDelete = async (id) => {
     try {
@@ -153,6 +153,20 @@ function App() {
               setPostTitle={setPostTitle}
               postBody={postBody}
               setPostBody={setPostBody}
+            />
+          }
+        />
+
+        <Route
+          path="/edit/:id"
+          element={
+            <EditPost
+              posts={posts}
+              handleEdit={handleEdit}
+              editTitle={editTitle}
+              setEditTitle={setEditTitle}
+              editBody={editBody}
+              setEditBody={setEditBody}
             />
           }
         />
