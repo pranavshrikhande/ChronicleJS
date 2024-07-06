@@ -13,6 +13,8 @@ import Footer from "./Footer";
 import { format } from "date-fns";
 import api from "./api/posts";
 import EditPost from "./EditPost";
+import useWindowSize from "./hooks/useWindowSize";
+
 
 function App() {
   const [posts, setPosts] = useState([]);
@@ -25,6 +27,10 @@ function App() {
   const [editBody, setEditBody] = useState("");
 
   const navigate = useNavigate(); //React Router v6 introduced a paradigm shift with the useNavigate hook, offering a more concise and streamlined approach to manage navigation within components. Unlike useHistory, useNavigate simplifies the navigation process by providing a single function for triggering route changes.
+
+
+  const {width} = useWindowSize();
+
 
   //another useEffect hook to load data to fetch data and needs to happen at load time, so dependency should be []
 
@@ -139,7 +145,7 @@ function App() {
 
   return (
     <div className="App">
-      <Header title="Daily Chronicles" />
+      <Header title="Daily Chronicles" width={width} />
       <Nav search={search} setSearch={setSearch} />
       <Routes>
         <Route path="/" element={<Home posts={searchResults} />} />
