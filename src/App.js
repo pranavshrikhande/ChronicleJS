@@ -14,6 +14,7 @@ import { format } from "date-fns";
 import api from "./api/posts";
 import EditPost from "./EditPost";
 import useWindowSize from "./hooks/useWindowSize";
+import useAxiosFetch from "./hooks/useAxiosFetch";
 
 
 function App() {
@@ -31,10 +32,15 @@ function App() {
 
   const {width} = useWindowSize();
 
+  const {data, fetchError, isLoading} = useAxiosFetch('http://localhost:3500/posts');
 
+  useEffect(()=>{
+    setPosts(data);
+  },[data])
+
+  //Below code needs would be non operable, as its redundant to load data
   //another useEffect hook to load data to fetch data and needs to happen at load time, so dependency should be []
-
-  useEffect(() => {
+  /* useEffect(() => {
     const fetchPosts = async () => {
       try {
         const response = await api.get("/posts");
@@ -55,7 +61,7 @@ function App() {
     };
 
     fetchPosts();
-  }, []);
+  }, []); */
 
   useEffect(() => {
     const filteredResults = posts.filter(
@@ -148,7 +154,7 @@ function App() {
       <Header title="Daily Chronicles" width={width} />
       <Nav search={search} setSearch={setSearch} />
       <Routes>
-        <Route path="/" element={<Home posts={searchResults} />} />
+        <Route path="/" element={<Home posts={searchResults} fetchError={fetchError} isLoading={isLoading}/>} />
 
         <Route
           path="/post"
