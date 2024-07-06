@@ -1,10 +1,5 @@
 import { createContext, useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { format } from "date-fns";
-import api from "../api/posts";
-import useWindowSize from "../hooks/useWindowSize";
 import useAxiosFetch from "../hooks/useAxiosFetch";
-
 const DataContext = createContext({});
 
 export const DataProvider = ({ children }) => {
@@ -12,14 +7,6 @@ export const DataProvider = ({ children }) => {
 
   const [search, setSearch] = useState("");
   const [searchResults, setSearchResults] = useState([]);
-  const [postTitle, setPostTitle] = useState("");
-  const [postBody, setPostBody] = useState("");
-  const [editTitle, setEditTitle] = useState("");
-  const [editBody, setEditBody] = useState("");
-
-  const navigate = useNavigate();
-
-  const { width } = useWindowSize();
 
   const { data, fetchError, isLoading } = useAxiosFetch(
     "http://localhost:3500/posts"
@@ -39,103 +26,16 @@ export const DataProvider = ({ children }) => {
     setSearchResults(filteredResults.reverse());
   }, [posts, search]);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    const id = posts.length ? posts[posts.length - 1].id + 1 : 1;
-    const datetime = format(new Date(), "MMMM dd, yyyy pp");
-    const newPost = {
-      id,
-      title: postTitle,
-      body: postBody,
-      datetime: datetime,
-    };
-    try {
-      const response = await api.post("/posts", newPost);
-      const allPosts = [...posts, response.data];
-      setPosts(allPosts);
-      setPostTitle("");
-      setPostBody("");
-      navigate("/");
-    } catch (err) {
-      if (err.response) {
-        //not in 200 Response range
-        console.log(err.response.data);
-        console.log(err.response.status);
-        console.log(err.response.headers);
-      } else {
-        console.log(`Error :${err.message}`);
-      }
-    }
-  };
-
-  const handleEdit = async (id) => {
-    //we need to have new state for edit body and title
-    const datetime = format(new Date(), "MMMM dd, yyyy pp");
-
-    const updatedBody = { id, title: editTitle, datetime, body: editBody };
-
-    try {
-      const response = await api.put(`/posts/${id}`, updatedBody);
-
-      setPosts(
-        posts.map((post) => (post.id === id ? { ...response.data } : post))
-      );
-      setEditTitle("");
-      setEditBody("");
-      navigate("/");
-    } catch (err) {
-      if (err.response) {
-        // not in 200 Response range
-        console.log(err.response.data);
-        console.log(err.response.status);
-        console.log(err.response.headers);
-      } else {
-        console.log(`Error :${err.message}`);
-      }
-    }
-  };
-
-  const handleDelete = async (id) => {
-    try {
-      await api.delete(`/posts/${id}`);
-      const postsList = posts.filter((post) => post.id !== id);
-
-      setPosts(postsList);
-      navigate("/"); //accessing browser history with react router and serving component instead of requesting anything from server
-    } catch (err) {
-      if (err.response) {
-        // not in 200 Response range
-        console.log(err.response.data);
-        console.log(err.response.status);
-        console.log(err.response.headers);
-      } else {
-        console.log(`Error :${err.message}`);
-      }
-    }
-  };
-
   return (
     <DataContext.Provider
       value={{
-        width,
         search,
         setSearch,
         searchResults,
         fetchError,
         isLoading,
-        handleSubmit,
-        postTitle,
-        setPostTitle,
-        postBody,
-        setPostBody,
-        handleEdit,
-        editTitle,
-        setEditTitle,
-        editBody,
-        setEditBody,
         posts,
-        handleDelete,
+        setPosts,
       }}
     >
       {children}

@@ -1,5 +1,3 @@
-//React router routes components
-
 import { Route, Routes } from "react-router-dom";
 
 import Header from "./Header";
@@ -33,8 +31,9 @@ function App() {
           <Route path="/about" element={<About />} />
           <Route path="*" element={<Missing />} />
         </Routes>
+        </DataProvider>
         <Footer />
-      </DataProvider>
+      
     </div>
   );
 }
