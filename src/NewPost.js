@@ -1,44 +1,32 @@
-import React, { useContext, useState } from "react";
-import DataContext from "./context/DataContext";
+import React, { } from "react";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
-import api from "./api/posts";
+
+import { useStoreState, useStoreActions } from 'easy-peasy';
 const NewPost = () => {
-  const { posts, setPosts } = useContext(DataContext);
+
 
   const navigate = useNavigate();
 
-  const [postTitle, setPostTitle] = useState("");
-  const [postBody, setPostBody] = useState("");
+     const posts = useStoreState((state) => state.posts);
+    const postTitle = useStoreState((state) => state.postTitle);
+    const postBody = useStoreState((state) => state.postBody);
+
+    const savePost = useStoreActions((actions) => actions.savePost);
+    const setPostTitle = useStoreActions((actions) => actions.setPostTitle);
+    const setPostBody = useStoreActions((actions) => actions.setPostBody);
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    const id = posts.length ? posts[posts.length - 1].id + 1 : 1;
-    const datetime = format(new Date(), "MMMM dd, yyyy pp");
-    const newPost = {
-      id,
-      title: postTitle,
-      body: postBody,
-      datetime: datetime,
-    };
-    try {
-      const response = await api.post("/posts", newPost);
-      const allPosts = [...posts, response.data];
-      setPosts(allPosts);
-      setPostTitle("");
-      setPostBody("");
+    
+        const id = posts.length ? posts[posts.length - 1].id + 1 : 1;
+        const datetime = format(new Date(), 'MMMM dd, yyyy pp');
+        const newPost = { id, title: postTitle, datetime, body: postBody };
+        savePost(newPost);
+    
       navigate("/");
-    } catch (err) {
-      if (err.response) {
-        //not in 200 Response range
-        console.log(err.response.data);
-        console.log(err.response.status);
-        console.log(err.response.headers);
-      } else {
-        console.log(`Error :${err.message}`);
-      }
-    }
+   
   };
 
   return (
