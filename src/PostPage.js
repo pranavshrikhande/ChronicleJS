@@ -1,33 +1,27 @@
 import { useParams, Link } from "react-router-dom";
-import React, { useContext } from "react";
-import DataContext from "./context/DataContext";
-import api from "./api/posts";
+import React, {  } from "react";
+//import api from "./api/posts";
 import { useNavigate } from "react-router-dom";
+import { useStoreState, useStoreActions } from "easy-peasy";
 
 const PostPage = () => {
   const navigate = useNavigate();
-  const { posts, setPosts } = useContext(DataContext);
-
+  //const { posts, setPosts } = useContext(DataContext);
   const { id } = useParams(); //gets params
-  const post = posts.find((post) => post.id.toString() === id);
+
+  const deletePost = useStoreActions((actions)=> actions.deletePost);
+  const getPostById = useStoreState((state)=> state.getPostById);
+
+
+  const post = getPostById(id);
+
+
+
 
   const handleDelete = async (id) => {
-    try {
-      await api.delete(`/posts/${id}`);
-      const postsList = posts.filter((post) => post.id !== id);
-
-      setPosts(postsList);
-      navigate("/"); //accessing browser history with react router and serving component instead of requesting anything from server
-    } catch (err) {
-      if (err.response) {
-        // not in 200 Response range
-        console.log(err.response.data);
-        console.log(err.response.status);
-        console.log(err.response.headers);
-      } else {
-        console.log(`Error :${err.message}`);
-      }
-    }
+    deletePost(id)
+      navigate("/"); 
+    
   };
 
   return (
