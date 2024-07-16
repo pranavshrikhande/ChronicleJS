@@ -13,6 +13,9 @@ import Footer from "./Footer";
 import { format } from "date-fns";
 import api from "./api/posts";
 import EditPost from "./EditPost";
+import useWindowSize from "./hooks/useWindowSize";
+import useAxiosFetch from "./hooks/useAxiosFetch";
+
 
 function App() {
   const [posts, setPosts] = useState([]);
@@ -26,9 +29,18 @@ function App() {
 
   const navigate = useNavigate(); //React Router v6 introduced a paradigm shift with the useNavigate hook, offering a more concise and streamlined approach to manage navigation within components. Unlike useHistory, useNavigate simplifies the navigation process by providing a single function for triggering route changes.
 
-  //another useEffect hook to load data to fetch data and needs to happen at load time, so dependency should be []
 
-  useEffect(() => {
+  const {width} = useWindowSize();
+
+  const {data, fetchError, isLoading} = useAxiosFetch('http://localhost:3500/posts');
+
+  useEffect(()=>{
+    setPosts(data);
+  },[data])
+
+  //Below code needs would be non operable, as its redundant to load data
+  //another useEffect hook to load data to fetch data and needs to happen at load time, so dependency should be []
+  /* useEffect(() => {
     const fetchPosts = async () => {
       try {
         const response = await api.get("/posts");
@@ -49,7 +61,7 @@ function App() {
     };
 
     fetchPosts();
-  }, []);
+  }, []); */
 
   useEffect(() => {
     const filteredResults = posts.filter(
@@ -139,10 +151,10 @@ function App() {
 
   return (
     <div className="App">
-      <Header title="Daily Chronicles" />
+      <Header title="Daily Chronicles" width={width} />
       <Nav search={search} setSearch={setSearch} />
       <Routes>
-        <Route path="/" element={<Home posts={searchResults} />} />
+        <Route path="/" element={<Home posts={searchResults} fetchError={fetchError} isLoading={isLoading}/>} />
 
         <Route
           path="/post"
